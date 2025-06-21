@@ -1,0 +1,11 @@
+<Project>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="8.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\ReverseProxy\ReverseProxy.csproj" />
+  </ItemGroup>
+
+</Project>
