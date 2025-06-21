@@ -1,0 +1,17 @@
+<Project>
+
+  <PropertyGroup>
+    <RootNamespace>Hj.$(MSBuildProjectName.Replace(" ", "_"))</RootNamespace>
+    <LangVersion>Latest</LangVersion>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <Authors>Henrik Jensen</Authors>
+    <Description>Pairs Microsoft YARP with a web API for runtime configuration and automatic self-signed certificates.</Description>
+    <PackageTags>testing;mock;reverse-proxy;certificates</PackageTags>
+    <PackageProjectUrl>https://github.com/henrikhimself/DotNet-ReverseProxy.git</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/henrikhimself/DotNet-ReverseProxy.git</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <Version>1.0.0-beta1</Version>
+  </PropertyGroup>
+
+</Project>
