@@ -30,7 +30,7 @@ public class ReverseProxyApiTests
   }
 
   [Fact]
-  public async Task PostRoute__GivenRouteInput_AddsRouteAsync()
+  public async Task PostRoute_GivenRouteInput_AddsRouteAsync()
   {
     // arrange
     SutBuilder sutBuilder = new();
