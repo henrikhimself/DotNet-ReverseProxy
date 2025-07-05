@@ -1,4 +1,4 @@
-// <copyright file="ServiceCollectionExtensions.cs" company="Henrik Jensen">
+// <copyright file="ReverseProxyExtensions.cs" company="Henrik Jensen">
 // Copyright 2025 Henrik Jensen
 //
 // Licensed under the Apache License, Version 2.0 (the "License")
@@ -26,7 +26,7 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace Hj.ReverseProxy;
 
-public static class ServiceCollectionExtensions
+public static class ReverseProxyExtensions
 {
   /// <summary>
   /// Configures the Kestrel server to use automatic self-signed certificate generation for HTTPS connections.
