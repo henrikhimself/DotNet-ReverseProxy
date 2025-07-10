@@ -75,7 +75,9 @@ internal sealed class CertificateFactory(
 
     var pfxBytes = certificateWithKey.Export(X509ContentType.Pkcs12);
 #pragma warning disable SYSLIB0057 // Type or member is obsolete
-    var pfx = new X509Certificate2(pfxBytes, (string?)null, X509KeyStorageFlags.Exportable | X509KeyStorageFlags.EphemeralKeySet);
+    var pfx = Environment.OSVersion.Platform == PlatformID.Win32NT
+      ? new X509Certificate2(pfxBytes, (string?)null, X509KeyStorageFlags.Exportable)
+      : new X509Certificate2(pfxBytes, (string?)null, X509KeyStorageFlags.Exportable | X509KeyStorageFlags.EphemeralKeySet);
 #pragma warning restore SYSLIB0057 // Type or member is obsolete
     return pfx;
   }

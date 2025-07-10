@@ -28,4 +28,8 @@
     </PackageReference>
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\ReverseProxy.Aspire\ReverseProxy.Aspire.csproj" />
+  </ItemGroup>
+
 </Project>
