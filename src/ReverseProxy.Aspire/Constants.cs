@@ -1,4 +1,4 @@
-// <copyright file="CertificateConstants.cs" company="Henrik Jensen">
+// <copyright file="Constants.cs" company="Henrik Jensen">
 // Copyright 2025 Henrik Jensen
 //
 // Licensed under the Apache License, Version 2.0 (the "License")
@@ -14,19 +14,9 @@
 // limitations under the License.
 // </copyright>
 
-namespace Hj.ReverseProxy.Certificate;
+namespace Hj.ReverseProxy.Aspire;
 
-internal static class CertificateConstants
+internal static class Constants
 {
-  public const string RsaOid = "1.2.840.113549.1.1.1";
-
-  public const string EcdsaOid = "1.2.840.10045.2.1";
-
-  public const string DefaultCaSubjectName = "CN=ReverseProxy Root CA";
-
-  public const string CaCrtFileName = "ReverseProxy-RootCA.crt.pem";
-
-  public const string CaKeyFileName = "ReverseProxy-RootCA.key.pem";
-
-  public const string CaPfxFileName = "ReverseProxy-RootCA.pfx";
+  public const string EnvPrefix = "reverseproxy";
 }
