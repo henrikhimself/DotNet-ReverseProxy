@@ -6,6 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Aspire.Hosting.AppHost" Version="9.4.0" />
     <ProjectReference Include="..\..\src\ReverseProxy.Aspire\ReverseProxy.Aspire.csproj" />
     <ProjectReference Include="..\..\src\ReverseProxy\ReverseProxy.csproj" />
   </ItemGroup>
