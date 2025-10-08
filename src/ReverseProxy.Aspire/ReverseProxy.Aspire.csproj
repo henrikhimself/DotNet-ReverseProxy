@@ -13,7 +13,7 @@
     <PackageTags>testing;reverse-proxy;aspire</PackageTags>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
-    <Version>1.0.0-beta1</Version>
+    <Version>1.0.0-beta4</Version>
   </PropertyGroup>
 
   <ItemGroup>
