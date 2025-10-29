@@ -56,8 +56,8 @@ internal sealed class CertificateStore(
 
   private void GetCaFilePaths(SelfSignedOptions options, out string caCrtPemFilePath, out string caKeyPemFilePath, out string caPfxFilePath)
   {
-    caCrtPemFilePath = fileStore.CombinePath(options.CaFilePath, CertificateConstants.CaCrtFileName);
-    caKeyPemFilePath = fileStore.CombinePath(options.CaFilePath, CertificateConstants.CaKeyFileName);
-    caPfxFilePath = fileStore.CombinePath(options.CaFilePath, CertificateConstants.CaPfxFileName);
+    caCrtPemFilePath = fileStore.CombinePath(options.CaFilePath, options.CaName + ".crt.pem");
+    caKeyPemFilePath = fileStore.CombinePath(options.CaFilePath, options.CaName + ".key.pem");
+    caPfxFilePath = fileStore.CombinePath(options.CaFilePath, options.CaName + ".pfx");
   }
 }

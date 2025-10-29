@@ -21,4 +21,6 @@ namespace Hj.ReverseProxy.ReverseProxy.Models;
 internal sealed class RouteInputDto
 {
   public List<RouteConfig>? Routes { get; set; }
+
+  public bool AllowOverwrite { get; set; }
 }

@@ -28,7 +28,7 @@ internal sealed class LoggerMiddleware(ILogger<LoggerMiddleware> logger)
 
     if (string.Equals(ReverseProxyConstants.BlackholeId, route.RouteId, StringComparison.OrdinalIgnoreCase))
     {
-      logger.LogDebug("Route: '{Url}', unknown route", context.Request.GetDisplayUrl());
+      logger.LogDebug("Blackhole route: '{Url}', unknown route", context.Request.GetDisplayUrl());
       context.Response.StatusCode = (int)HttpStatusCode.NotFound;
       await context.Response.CompleteAsync();
       return;

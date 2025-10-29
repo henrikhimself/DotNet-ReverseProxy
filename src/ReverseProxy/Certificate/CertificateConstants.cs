@@ -24,9 +24,9 @@ internal static class CertificateConstants
 
   public const string DefaultCaSubjectName = "CN=ReverseProxy Root CA";
 
-  public const string CaCrtFileName = "ReverseProxy-RootCA.crt.pem";
+  public const string DefaultCaName = "ReverseProxy-RootCA";
 
-  public const string CaKeyFileName = "ReverseProxy-RootCA.key.pem";
+  public const string CaCrtFileExtension = ".crt.pem";
 
-  public const string CaPfxFileName = "ReverseProxy-RootCA.pfx";
+  public const string CaKeyFileExtension = ".key.pem";
 }

@@ -21,4 +21,6 @@ namespace Hj.ReverseProxy.ReverseProxy.Models;
 internal sealed class ClusterInputDto
 {
   public List<ClusterConfig>? Clusters { get; set; }
+
+  public bool AllowOverwrite { get; set; }
 }
