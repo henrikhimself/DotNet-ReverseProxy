@@ -31,6 +31,11 @@ internal sealed class CertificateConfig(
       throw new InvalidOperationException("CA file path is not configured");
     }
 
+    if (string.IsNullOrWhiteSpace(selfSignedOptions.CaName))
+    {
+      selfSignedOptions.CaName = CertificateConstants.DefaultCaName;
+    }
+
     if (string.IsNullOrWhiteSpace(selfSignedOptions.AlgorithmOid))
     {
       selfSignedOptions.AlgorithmOid = CertificateConstants.EcdsaOid;

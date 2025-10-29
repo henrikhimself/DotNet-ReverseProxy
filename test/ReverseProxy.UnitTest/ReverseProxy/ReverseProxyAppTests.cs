@@ -46,7 +46,7 @@ public class ReverseProxyAppTests
     RouteConfig routeConfig = new();
 
     // act & assert
-    await Assert.ThrowsAnyAsync<AggregateException>(async () => await sut.AddRouteAsync(routeConfig));
+    await Assert.ThrowsAnyAsync<AggregateException>(async () => await sut.AddRouteAsync(routeConfig, false));
   }
 
   [Fact]
@@ -63,7 +63,43 @@ public class ReverseProxyAppTests
     });
 
     // act & assert
-    await Assert.ThrowsAnyAsync<InvalidOperationException>(async () => await sut.AddRouteAsync(routeConfig));
+    await Assert.ThrowsAnyAsync<InvalidOperationException>(async () => await sut.AddRouteAsync(routeConfig, false));
+  }
+
+
+
+  [Fact]
+  public async Task AddRouteAsync_GivenExistingAndAllowOverwrite_UpdatesAsync()
+  {
+    // arrange
+    var routeId = Guid.NewGuid().ToString();
+
+    var sut = SystemUnderTest.For<ReverseProxyApp>(arrange =>
+    {
+      SetHappyPath(arrange);
+
+      RouteConfig oldRouteConfig = new()
+      {
+        RouteId = routeId,
+        ClusterId = "oldCluster",
+      };
+
+      arrange.Instance<InMemoryConfigProvider>()
+        .Update([oldRouteConfig], []);
+    });
+
+    RouteConfig newRouteConfig = new()
+    {
+      RouteId = routeId,
+      ClusterId = "newCluster",
+    };
+
+    // act
+    await sut.AddRouteAsync(newRouteConfig, true);
+
+    // assert
+    var routeConfig = sut.GetRouteConfigs().Single(x => x.RouteId == routeId);
+    Assert.Equal("newCluster", routeConfig.ClusterId);
   }
 
   [Fact]
@@ -82,7 +118,7 @@ public class ReverseProxyAppTests
     ClusterConfig clusterConfig = new();
 
     // act & assert
-    await Assert.ThrowsAnyAsync<AggregateException>(async () => await sut.AddClusterAsync(clusterConfig));
+    await Assert.ThrowsAnyAsync<AggregateException>(async () => await sut.AddClusterAsync(clusterConfig, false));
   }
 
   [Fact]
@@ -99,7 +135,47 @@ public class ReverseProxyAppTests
     });
 
     // act & assert
-    await Assert.ThrowsAnyAsync<InvalidOperationException>(async () => await sut.AddClusterAsync(clusterConfig));
+    await Assert.ThrowsAnyAsync<InvalidOperationException>(async () => await sut.AddClusterAsync(clusterConfig, false));
+  }
+
+  [Fact]
+  public async Task AddClusterAsync_GivenExistingAndAllowOverwrite_UpdatesAsync()
+  {
+    // arrange
+    var clusterId = Guid.NewGuid().ToString();
+
+    var sut = SystemUnderTest.For<ReverseProxyApp>(arrange =>
+    {
+      SetHappyPath(arrange);
+
+      ClusterConfig oldClusterConfig = new()
+      {
+        ClusterId = clusterId,
+        Destinations = new Dictionary<string, DestinationConfig>()
+        {
+          { "destination1", new() { Address = "https://example.com/old", } },
+        },
+      };
+
+      arrange.Instance<InMemoryConfigProvider>()
+        .Update([], [oldClusterConfig]);
+    });
+
+    ClusterConfig newClusterConfig = new()
+    {
+      ClusterId = clusterId,
+      Destinations = new Dictionary<string, DestinationConfig>()
+      {
+        { "destination1", new() { Address = "https://example.com/new", } },
+      },
+    };
+
+    // act
+    await sut.AddClusterAsync(newClusterConfig, true);
+
+    // assert
+    var clusterConfig = sut.GetClusterConfigs().Single(x => x.ClusterId == clusterId);
+    Assert.Equal("https://example.com/new", clusterConfig.Destinations?["destination1"].Address);
   }
 
   private static void SetHappyPath(InputBuilder inputBuilder)
