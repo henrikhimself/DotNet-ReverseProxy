@@ -1,7 +1,0 @@
-<Project>
-
-  <ItemGroup>
-    <ProjectReference Include="..\..\src\ReverseProxy\ReverseProxy.csproj" />
-  </ItemGroup>
-
-</Project>
