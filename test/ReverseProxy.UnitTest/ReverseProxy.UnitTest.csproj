@@ -17,6 +17,7 @@
 
   <ItemGroup>
     <PackageReference Include="HenrikJensen.SutFactory" />
+    <PackageReference Include="NSubstitute" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" />
     <PackageReference Include="xunit" />
     <PackageReference Include="xunit.analyzers">
