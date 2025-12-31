@@ -66,8 +66,6 @@ public class ReverseProxyAppTests
     await Assert.ThrowsAnyAsync<InvalidOperationException>(async () => await sut.AddRouteAsync(routeConfig, false));
   }
 
-
-
   [Fact]
   public async Task AddRouteAsync_GivenExistingAndAllowOverwrite_UpdatesAsync()
   {

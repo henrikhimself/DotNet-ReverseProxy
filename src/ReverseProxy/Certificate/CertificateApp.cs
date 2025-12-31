@@ -40,7 +40,11 @@ internal sealed class CertificateApp(
         ? dnsName[2..]
         : dnsName;
 
-      logger.LogInformation("Missing certificate, dns name '{DnsName}', is wildcard '{IsWildcard}'", dnsName, isWildcard);
+      if (logger.IsEnabled(LogLevel.Information))
+      {
+        logger.LogInformation("Missing certificate, dns name '{DnsName}', is wildcard '{IsWildcard}'", dnsName, isWildcard);
+      }
+
       return certificateFactory.CreateCertificate(key, ca, $"CN={cn}", san =>
       {
         san.AddIpAddress(IPAddress.Loopback);
@@ -63,7 +67,7 @@ internal sealed class CertificateApp(
     {
       using var key = certificateFactory.CreateKey(selfSignedOptions.AlgorithmOid);
       ca = certificateFactory.CreateCa(key, selfSignedOptions.SubjectName);
-      certificateStore.SaveCa(selfSignedOptions, ca);
+      certificateStore.SaveCa(selfSignedOptions, ca, key);
     }
 
     return ca;

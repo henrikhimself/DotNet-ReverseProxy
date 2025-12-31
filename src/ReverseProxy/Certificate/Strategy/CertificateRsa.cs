@@ -30,10 +30,15 @@ internal sealed class CertificateRsa : ICertificateStrategy
   public X509SignatureGenerator GetSignatureGenerator(X509Certificate2 certificate)
     => X509SignatureGenerator.CreateForRSA(GetKey(certificate), RSASignaturePadding.Pkcs1);
 
+  public X509SignatureGenerator GetSignatureGenerator(AsymmetricAlgorithm key)
+    => X509SignatureGenerator.CreateForRSA((RSA)key, RSASignaturePadding.Pkcs1);
+
   public X509Certificate2 CopyWithPrivateKey(X509Certificate2 certificate, AsymmetricAlgorithm key)
     => certificate.CopyWithPrivateKey((RSA)key);
 
   public string ExportPrivateKeyPem(X509Certificate2 certificate) => GetKey(certificate).ExportRSAPrivateKeyPem();
+
+  public string ExportPrivateKeyPem(AsymmetricAlgorithm key) => ((RSA)key).ExportRSAPrivateKeyPem();
 
   private static RSA GetKey(X509Certificate2 certificate)
     => certificate.GetRSAPrivateKey() ?? throw new InvalidOperationException("Certificate has no private key");

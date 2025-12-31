@@ -3,8 +3,7 @@
     "editor.minimap.enabled": false,
     "files.exclude": {
       "**/bin": true,
-      "**/obj": true,
-      "TestReport": true
+      "**/obj": true
     },
     "git.enableCommitSigning": true,
     "dotnet.unitTests.runSettingsPath": ".runsettings",

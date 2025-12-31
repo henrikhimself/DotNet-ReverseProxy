@@ -151,6 +151,22 @@ aSkb7U6H7JZHgRuXcDt0/uIx/bguxUNKGQ==
     arrange.Instance<CertificateEcdsa>();
     arrange.Instance<CertificateRsa>();
 
+#if NET8_0
+    if (OperatingSystem.IsMacOS())
+    {
+      arrange.Instance<ICaLoader, MacOSNet8CaLoader>();
+      arrange.Instance<ICertificateCreator, MacOSNet8CertificateCreator>();
+    }
+    else
+    {
+      arrange.Instance<ICaLoader, DefaultCaLoader>();
+      arrange.Instance<ICertificateCreator, DefaultCertificateCreator>();
+    }
+#else
+    arrange.Instance<ICaLoader, DefaultCaLoader>();
+    arrange.Instance<ICertificateCreator, DefaultCertificateCreator>();
+#endif
+
     var fileStore = arrange.Instance<IFileStore>();
     fileStore.CombinePath(Arg.Any<string>(), Arg.Any<string>()).Returns(args => Path.Combine(args.ArgAt<string>(0), args.ArgAt<string>(1)));
     fileStore.GetFullPath(Arg.Any<string>()).Returns(args => args.ArgAt<string>(0));

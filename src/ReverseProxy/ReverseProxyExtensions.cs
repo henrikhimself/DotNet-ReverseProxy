@@ -83,6 +83,24 @@ public static class ReverseProxyExtensions
     services.TryAddSingleton<ICertificateConfig, CertificateConfig>();
     services.AddSingleton<ICertificateStrategy, CertificateRsa>();
     services.AddSingleton<ICertificateStrategy, CertificateEcdsa>();
+
+    // Register appropriate CA loader strategy based on platform and .NET version
+#if NET8_0
+    if (OperatingSystem.IsMacOS())
+    {
+      services.AddSingleton<ICaLoader, MacOSNet8CaLoader>();
+      services.AddSingleton<ICertificateCreator, MacOSNet8CertificateCreator>();
+    }
+    else
+    {
+      services.AddSingleton<ICaLoader, DefaultCaLoader>();
+      services.AddSingleton<ICertificateCreator, DefaultCertificateCreator>();
+    }
+#else
+    services.AddSingleton<ICaLoader, DefaultCaLoader>();
+    services.AddSingleton<ICertificateCreator, DefaultCertificateCreator>();
+#endif
+
     services.AddSingleton<CertificateStore>();
     services.AddSingleton<CertificateFactory>();
     services.AddSingleton<CertificateApp>();

@@ -22,7 +22,8 @@ namespace Hj.ReverseProxy.Certificate;
 internal sealed class CertificateStore(
   ILogger<CertificateStore> logger,
   IFileStore fileStore,
-  CertificateFactory certificateFactory)
+  CertificateFactory certificateFactory,
+  ICaLoader caLoader)
 {
   public X509Certificate2? LoadCa(SelfSignedOptions options)
   {
@@ -30,25 +31,42 @@ internal sealed class CertificateStore(
 
     if (!fileStore.FileExists(caCrtPemFilePath) || !fileStore.FileExists(caKeyPemFilePath))
     {
-      logger.LogInformation("Missing CA, cert path '{CertPemPath}', key path '{CaKeyPath}'", caCrtPemFilePath, caKeyPemFilePath);
+      if (logger.IsEnabled(LogLevel.Information))
+      {
+        logger.LogInformation("Missing CA, cert path '{CertPemPath}', key path '{CaKeyPath}'", caCrtPemFilePath, caKeyPemFilePath);
+      }
+
       return null;
     }
 
-    logger.LogInformation("Loading CA, cert path '{CertPemPath}', key path '{CaKeyPath}'", caCrtPemFilePath, caKeyPemFilePath);
+    if (logger.IsEnabled(LogLevel.Information))
+    {
+      logger.LogInformation("Loading CA, cert path '{CertPemPath}', key path '{CaKeyPath}'", caCrtPemFilePath, caKeyPemFilePath);
+    }
 
     var certContents = fileStore.ReadAllText(caCrtPemFilePath);
     var keyContents = fileStore.ReadAllText(caKeyPemFilePath);
-    var ca = X509Certificate2.CreateFromPem(certContents, keyContents);
-    return ca;
+
+    return caLoader.LoadFromPem(certContents, keyContents);
   }
 
-  public void SaveCa(SelfSignedOptions options, X509Certificate2 ca)
+  public void SaveCa(SelfSignedOptions options, X509Certificate2 ca, AsymmetricAlgorithm? key = null)
   {
     GetCaFilePaths(options, out var caCrtPemFilePath, out var caKeyPemFilePath, out var caPfxFilePath);
-    logger.LogInformation("Saving CA, cert path '{CertPemPath}', key path '{CaKeyPemPath}', pfx path '{CaPfxPath}'", caCrtPemFilePath, caKeyPemFilePath, caPfxFilePath);
+
+    if (logger.IsEnabled(LogLevel.Information))
+    {
+      logger.LogInformation("Saving CA, cert path '{CertPemPath}', key path '{CaKeyPemPath}', pfx path '{CaPfxPath}'", caCrtPemFilePath, caKeyPemFilePath, caPfxFilePath);
+    }
 
     fileStore.WriteAllText(caCrtPemFilePath, ca.ExportCertificatePem());
-    fileStore.WriteAllText(caKeyPemFilePath, certificateFactory.ExportPrivateKeyPem(ca));
+
+    // On macOS, export PEM from the original key object before it's attached to the certificate
+    // because ECDSA keys in the macOS keychain aren't exportable even after reload
+    var keyPem = key != null
+      ? certificateFactory.ExportPrivateKeyPem(key)
+      : certificateFactory.ExportPrivateKeyPem(ca);
+    fileStore.WriteAllText(caKeyPemFilePath, keyPem);
 
     // Intentionally skipping adding a password here to make it easier to import ca into a trusted root ca store.
     fileStore.WriteAllBytes(caPfxFilePath, ca.Export(X509ContentType.Pfx));

@@ -14,6 +14,7 @@ if (-Not (Test-Path -Path $TestPath)) {
   throw 'Cannot find test path.'
 }
 [string]$TestDirectoryPath = Split-Path -Path $TestPath -Parent
+[string]$SourceDirectoryPath = Join-Path $TestDirectoryPath 'src'
 
 # Check path of test coverage settings.
 [string]$CoverletRunSettingsPath = Join-Path $TestDirectoryPath '.runsettings'
@@ -30,13 +31,6 @@ if (-Not (Test-Path -Path $ReportDirectoryPath)) {
 if (-Not (Test-Path -Path $ResultsDirectoryPath)) {
   $null = New-Item -ItemType 'Directory' -Path $ResultsDirectoryPath
 }
-[string]$HistoryDirectoryPath = Join-Path $ReportDirectoryPath 'History'
-if (-Not (Test-Path -Path $HistoryDirectoryPath)) {
-  $null = New-Item -ItemType 'Directory' -Path $HistoryDirectoryPath
-}
-
-# Move previous results to history directory.
-Move-Item -Path (Join-Path $ResultsDirectoryPath '*') -Destination $HistoryDirectoryPath
 
 # Execute unit tests.
 $TestArgs = @(
@@ -57,8 +51,8 @@ $ReportGeneratorArgs = @(
   'reportgenerator',
   "-title:SutFactory",
   "-reports:$ResultsDirectoryPath/**/coverage.cobertura.xml",
-  "-historydir:$HistoryDirectoryPath"
   "-targetdir:$ReportDirectoryPath",
+  "-sourcedirs:$SourceDirectoryPath",
   '-reporttypes:HtmlInline_AzurePipelines'
 )
 Write-Information "Report generator args: $($ReportGeneratorArgs | ConvertTo-Json)"

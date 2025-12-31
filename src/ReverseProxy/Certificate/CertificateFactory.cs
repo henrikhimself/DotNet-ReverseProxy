@@ -20,7 +20,8 @@ namespace Hj.ReverseProxy.Certificate;
 
 internal sealed class CertificateFactory(
   ILogger<CertificateFactory> logger,
-  IEnumerable<ICertificateStrategy> strategies)
+  IEnumerable<ICertificateStrategy> strategies,
+  ICertificateCreator certificateCreator)
 {
   public X509Certificate2 CreateCa(AsymmetricAlgorithm key, string subjectName)
   {
@@ -35,8 +36,13 @@ internal sealed class CertificateFactory(
     var validFrom = utcNow.AddDays(-1);
     var validTo = utcNow.AddYears(10);
 
-    var ca = request.CreateSelfSigned(validFrom, validTo);
-    logger.LogInformation("Creating CA, subject '{SubjectName}', valid from '{ValidFrom}', valid to '{ValidTo}', thumbprint '{Thumbprint}', serial '{SerialNumber}'", subjectName, validFrom, validTo, ca.Thumbprint, ca.SerialNumber);
+    var ca = certificateCreator.CreateSelfSignedCa(key, request, validFrom, validTo);
+
+    if (logger.IsEnabled(LogLevel.Information))
+    {
+      logger.LogInformation("Creating CA, subject '{SubjectName}', valid from '{ValidFrom}', valid to '{ValidTo}', thumbprint '{Thumbprint}', serial '{SerialNumber}'", subjectName, validFrom, validTo, ca.Thumbprint, ca.SerialNumber);
+    }
+
     return ca;
   }
 
@@ -63,21 +69,28 @@ internal sealed class CertificateFactory(
     var serialNumber = new byte[16];
     RandomNumberGenerator.Fill(serialNumber);
 
-    logger.LogInformation("Creating certificate, subject '{SubjectName}', CA thumbprint '{Thumbprint}', CA serial '{SerialNumber}'", subjectName, ca.Thumbprint, ca.SerialNumber);
-    var certificate = request.Create(
-        ca.IssuerName,
-        caSignatureGenerator,
-        validFrom,
-        validTo,
-        serialNumber);
+    if (logger.IsEnabled(LogLevel.Information))
+    {
+      logger.LogInformation("Creating certificate, subject '{SubjectName}', CA thumbprint '{Thumbprint}', CA serial '{SerialNumber}'", subjectName, ca.Thumbprint, ca.SerialNumber);
+    }
 
-    var certificateWithKey = strategy.CopyWithPrivateKey(certificate, key);
+    var pfxBytes = certificateCreator.CreateSignedCertificate(
+      key,
+      request,
+      ca.IssuerName,
+      caSignatureGenerator,
+      validFrom,
+      validTo,
+      serialNumber);
 
-    var pfxBytes = certificateWithKey.Export(X509ContentType.Pkcs12);
+    // EphemeralKeySet is not supported on macOS (requires keychain which writes to disk)
+    // but is supported on Windows, Linux, iOS/tvOS/MacCatalyst, and Android
+    var keyStorageFlags = OperatingSystem.IsMacOS()
+      ? X509KeyStorageFlags.Exportable
+      : X509KeyStorageFlags.Exportable | X509KeyStorageFlags.EphemeralKeySet;
+
 #pragma warning disable SYSLIB0057 // Type or member is obsolete
-    var pfx = Environment.OSVersion.Platform == PlatformID.Win32NT
-      ? new X509Certificate2(pfxBytes, (string?)null, X509KeyStorageFlags.Exportable)
-      : new X509Certificate2(pfxBytes, (string?)null, X509KeyStorageFlags.Exportable | X509KeyStorageFlags.EphemeralKeySet);
+    var pfx = new X509Certificate2(pfxBytes, (string?)null, keyStorageFlags);
 #pragma warning restore SYSLIB0057 // Type or member is obsolete
     return pfx;
   }
@@ -86,6 +99,9 @@ internal sealed class CertificateFactory(
 
   public string ExportPrivateKeyPem(X509Certificate2 certificate)
     => GetStrategy(certificate).ExportPrivateKeyPem(certificate);
+
+  public string ExportPrivateKeyPem(AsymmetricAlgorithm key)
+    => GetStrategy(key).ExportPrivateKeyPem(key);
 
   private ICertificateStrategy GetStrategy(X509Certificate2 certificate) => GetStrategy(certificate.GetKeyAlgorithm());
 
