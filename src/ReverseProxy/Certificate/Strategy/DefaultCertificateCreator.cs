@@ -41,7 +41,7 @@ internal sealed class DefaultCertificateCreator(IEnumerable<ICertificateStrategy
     DateTimeOffset validTo,
     byte[] serialNumber)
   {
-    var certificate = request.Create(
+    using var certificate = request.Create(
       issuerName,
       caSignatureGenerator,
       validFrom,
@@ -49,7 +49,7 @@ internal sealed class DefaultCertificateCreator(IEnumerable<ICertificateStrategy
       serialNumber);
 
     var strategy = GetStrategy(key);
-    var certificateWithKey = strategy.CopyWithPrivateKey(certificate, key);
+    using var certificateWithKey = strategy.CopyWithPrivateKey(certificate, key);
     return certificateWithKey.Export(X509ContentType.Pkcs12);
   }
 

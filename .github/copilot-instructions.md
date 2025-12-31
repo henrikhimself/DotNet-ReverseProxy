@@ -95,7 +95,7 @@ Common namespaces are globally imported via [Directory.Build.props](../Directory
 ### Aspire Integration
 - Targets `Aspire.Hosting.AppHost` (v9.5.1)
 - DI service registration via `IServiceCollection`.
-- Sstartup filters for configuring reverse proxy routes/clusters using injected service discovery environment variables.
+- Startup filters for configuring reverse proxy routes/clusters using injected service discovery environment variables.
 - Resource builders follow Aspire conventions
 
 ### Extension Points

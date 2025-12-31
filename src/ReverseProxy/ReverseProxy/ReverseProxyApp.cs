@@ -82,7 +82,7 @@ internal sealed class ReverseProxyApp(
     var validationErrors = await configValidator.ValidateClusterAsync(cluster);
     if (validationErrors.Count > 0)
     {
-      throw new AggregateException("Could not add cluser.", validationErrors);
+      throw new AggregateException("Could not add cluster.", validationErrors);
     }
 
     var hasExisting = proxyConfigProviders.Any(x => x.GetConfig().Clusters.Any(y => y.ClusterId == cluster.ClusterId));

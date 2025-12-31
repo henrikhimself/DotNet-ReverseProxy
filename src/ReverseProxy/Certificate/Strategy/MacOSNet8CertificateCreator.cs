@@ -35,7 +35,7 @@ internal sealed class MacOSNet8CertificateCreator(IEnumerable<ICertificateStrate
 
     var strategy = GetStrategy(key);
     var caSignatureGenerator = strategy.GetSignatureGenerator(key);
-    var certificate = request.Create(request.SubjectName, caSignatureGenerator, validFrom, validTo, serialNumber);
+    using var certificate = request.Create(request.SubjectName, caSignatureGenerator, validFrom, validTo, serialNumber);
 
     // Use Pkcs12Builder to manually create PKCS12 without touching keychain
     var safeContents = new Pkcs12SafeContents();

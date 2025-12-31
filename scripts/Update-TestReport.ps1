@@ -49,7 +49,7 @@ if ($LastExitCode -ne 0) {
 # Update test coverage report.
 $ReportGeneratorArgs = @(
   'reportgenerator',
-  "-title:SutFactory",
+  "-title:ReverseProxy",
   "-reports:$ResultsDirectoryPath/**/coverage.cobertura.xml",
   "-targetdir:$ReportDirectoryPath",
   "-sourcedirs:$SourceDirectoryPath",
