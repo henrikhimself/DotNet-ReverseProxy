@@ -4,7 +4,7 @@ Set-StrictMode -Version Latest
 $InformationPreference = 'Continue'
 
 <# Global #>
-[string]$UpdateTestReportScript = Join-Path $PSScriptRoot 'scripts' 'Update-TestReport.ps1'
+[string]$UpdateTestReportScript = Join-Path $PSScriptRoot 'scripts' 'Update-TestCoverage.ps1'
 [string]$SourceSolutionPath = Join-Path $PSScriptRoot 'ReverseProxy.sln'
 [string]$TestReportPath = Join-Path $PSScriptRoot 'TestReport'
 
