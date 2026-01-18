@@ -22,10 +22,20 @@ public static class ResourceBuilderExtensions
     where T : IResourceWithEnvironment
   {
     var endpointAnnotation = builder.Resource.Annotations.OfType<EndpointAnnotation>().SingleOrDefault(a => a.Name == "https")
-    ?? throw new InvalidOperationException($"Resource '{builder.Resource.Name}' does not have an HTTPS endpoint to reference");
+    ?? throw new InvalidOperationException($"Resource '{builder.Resource.Name}' does not have an HTTPS endpoint yet that we use.");
 
-    var port = ":" + endpointAnnotation.Port;
-    var externalUrl = $"https://{hostName}{port}";
+    var externalUrl = $"https://{hostName}";
+
+    var port = endpointAnnotation.Port;
+    if (port == 443)
+    {
+      port = null;
+    }
+
+    if (port.HasValue)
+    {
+      externalUrl += $":{port.Value}";
+    }
 
     builder
       .WithUrl(externalUrl)
