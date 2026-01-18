@@ -54,7 +54,7 @@ internal sealed class ReverseProxyApp(
     Update();
   }
 
-  public async ValueTask AddRouteAsync(RouteConfig route)
+  public async ValueTask AddRouteAsync(RouteConfig route, bool allowOverwrite)
   {
     var validationErrors = await configValidator.ValidateRouteAsync(route);
     if (validationErrors.Count > 0)
@@ -62,26 +62,38 @@ internal sealed class ReverseProxyApp(
       throw new AggregateException("Could not add route.", validationErrors);
     }
 
-    if (proxyConfigProviders.Any(x => x.GetConfig().Routes.Any(y => y.RouteId == route.RouteId)))
+    var hasExisting = proxyConfigProviders.Any(x => x.GetConfig().Routes.Any(y => y.RouteId == route.RouteId));
+    if (hasExisting && !allowOverwrite)
     {
       throw new InvalidOperationException($"Route with id '{route.RouteId}' already exists.");
+    }
+
+    if (hasExisting)
+    {
+      _routes.RemoveAll(x => x.RouteId == route.RouteId);
     }
 
     _routes.Add(route);
     Update();
   }
 
-  public async ValueTask AddClusterAsync(ClusterConfig cluster)
+  public async ValueTask AddClusterAsync(ClusterConfig cluster, bool allowOverwrite)
   {
     var validationErrors = await configValidator.ValidateClusterAsync(cluster);
     if (validationErrors.Count > 0)
     {
-      throw new AggregateException("Could not add cluser.", validationErrors);
+      throw new AggregateException("Could not add cluster.", validationErrors);
     }
 
-    if (proxyConfigProviders.Any(x => x.GetConfig().Clusters.Any(y => y.ClusterId == cluster.ClusterId)))
+    var hasExisting = proxyConfigProviders.Any(x => x.GetConfig().Clusters.Any(y => y.ClusterId == cluster.ClusterId));
+    if (hasExisting && !allowOverwrite)
     {
       throw new InvalidOperationException($"Cluster with id '{cluster.ClusterId}' already exists.");
+    }
+
+    if (hasExisting)
+    {
+      _clusters.RemoveAll(x => x.ClusterId == cluster.ClusterId);
     }
 
     _clusters.Add(cluster);

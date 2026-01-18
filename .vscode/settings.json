@@ -6,6 +6,7 @@
       "**/obj": true
     },
     "git.enableCommitSigning": true,
+    "dotnet.unitTests.runSettingsPath": ".runsettings",
     "csharp.debug.symbolOptions.searchNuGetOrgSymbolServer": true,
     "csharp.debug.symbolOptions.searchMicrosoftSymbolServer": true,
     "csharp.debug.justMyCode": true,

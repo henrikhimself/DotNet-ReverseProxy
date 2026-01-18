@@ -13,15 +13,31 @@ var website = builder.AddProject<Examples_Aspire_Website>("Website", options =>
   // Add a HTTP endpoint. The reverse proxy will set up a secure HTTPS endpoint for you to connect to this resource.
   .WithHttpEndpoint();
 
-// Add reverse proxy website.
+// Add reverse proxy website. The following shows 3 scenarios for configuring HTTPS endpoints.
 var reverseProxy = builder
   .AddProject<Examples_Aspire_ReverseProxy>("Reverse-Proxy")
-  // Configure reverse proxy to use https on port 443.
-  .WithHttpsEndpoint(443)
-  // Map a host name to the endpoint of the example website.
-  .WithReverseProxyReference("Website", website.GetEndpoint("http"), "example-website.local");
+  .WithExternalHttpEndpoints();
 
-// Wait for the website to be healthy.
+// Configure the reverse proxy to use HTTPS on port 443 to allow nice urls without port numbers. This requires admin/root
+// privileges when starting the apphost and may not work if you forward ports for remote development.
+// reverseProxy.WithHttpsEndpoint(443);
+
+// Using a different port above 1024 for HTTPS avoids requiring the admin/root privileges mentioned above. But now we
+// get port numbers in the urls which we probably won't have when deploying to production. This is not ideal but makes
+// remote development using a port forward easier.
+reverseProxy.WithHttpsEndpoint(port: 8443);
+
+// For remote development without port forwarding or dev tunnels, we can disable the Aspire proxying and configure Kestrel
+// to bind to all interfaces. Unfortunately this means that we can no longer use Aspire scaling but for development this
+// is often desired.
+// reverseProxy.WithHttpsEndpoint(port: 8443, isProxied: false)
+//   .WithEnvironment("ASPNETCORE_URLS", "https://0.0.0.0:8443");
+
+// Add each website with a nice host name. Since we apply HTTPS using the reverse proxy by configuring the endpoint above,
+// we can use the HTTP endpoint of each proxied website without worrying about security.
+reverseProxy.WithReverseProxyReference("Website", website.GetEndpoint("http"), "example-website.local");
+
+// Wait for the website to be healthy before starting the reverse proxy.
 reverseProxy.WaitFor(website);
 
 await builder.Build().RunAsync();

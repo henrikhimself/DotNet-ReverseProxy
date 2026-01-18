@@ -57,7 +57,7 @@ internal static class ReverseProxyApi
     {
       foreach (var routeConfig in routeInput.Routes)
       {
-        await reverseProxyApp.AddRouteAsync(routeConfig);
+        await reverseProxyApp.AddRouteAsync(routeConfig, routeInput.AllowOverwrite);
       }
     }
 
@@ -72,7 +72,7 @@ internal static class ReverseProxyApi
     {
       foreach (var clusterConfig in clusterInput.Clusters)
       {
-        await reverseProxyApp.AddClusterAsync(clusterConfig);
+        await reverseProxyApp.AddClusterAsync(clusterConfig, clusterInput.AllowOverwrite);
       }
     }
 

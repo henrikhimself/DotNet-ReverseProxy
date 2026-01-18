@@ -59,6 +59,72 @@ public class CertificateConfigTests
     Assert.Equal(CertificateConstants.DefaultCaSubjectName, result.SubjectName);
   }
 
+  [Fact]
+  public void GetOptions_GivenPhysicalFilePath_UsesPathAsIs()
+  {
+    // arrange
+    var expectedPath = "/my/ca/path";
+    var configuration = CreateConfiguration(new()
+    {
+      { "SelfSignedCertificate:CaFilePath", expectedPath },
+    });
+
+    var sut = new CertificateConfig(configuration);
+
+    // act
+    var result = sut.GetOptions();
+
+    // assert
+    Assert.Equal(expectedPath, result.CaFilePath);
+  }
+
+  [Fact]
+  public void GetOptions_GivenReverseProxyHomeToken_ExpandsToUserHomeWhenEnvVarNotSet()
+  {
+    // arrange
+    Environment.SetEnvironmentVariable("REVERSEPROXY_HOME", null);
+    var expectedPath = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+    var configuration = CreateConfiguration(new()
+    {
+      { "SelfSignedCertificate:CaFilePath", "{REVERSEPROXY_HOME}" },
+    });
+
+    var sut = new CertificateConfig(configuration);
+
+    // act
+    var result = sut.GetOptions();
+
+    // assert
+    Assert.Equal(expectedPath, result.CaFilePath);
+  }
+
+  [Fact]
+  public void GetOptions_GivenReverseProxyHomeToken_ExpandsToEnvVarWhenSet()
+  {
+    // arrange
+    const string CustomPath = "/custom/reverseproxy/path";
+    try
+    {
+      Environment.SetEnvironmentVariable("REVERSEPROXY_HOME", CustomPath);
+      var configuration = CreateConfiguration(new()
+      {
+        { "SelfSignedCertificate:CaFilePath", "{REVERSEPROXY_HOME}" },
+      });
+
+      var sut = new CertificateConfig(configuration);
+
+      // act
+      var result = sut.GetOptions();
+
+      // assert
+      Assert.Equal(CustomPath, result.CaFilePath);
+    }
+    finally
+    {
+      Environment.SetEnvironmentVariable("REVERSEPROXY_HOME", null);
+    }
+  }
+
   private static IConfiguration CreateConfiguration(Dictionary<string, string> settings)
     => new ConfigurationBuilder().AddInMemoryCollection(settings!).Build();
 }

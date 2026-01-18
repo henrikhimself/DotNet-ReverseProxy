@@ -1,4 +1,4 @@
-// <copyright file="CertificateConstants.cs" company="Henrik Jensen">
+// <copyright file="ICaLoader.cs" company="Henrik Jensen">
 // Copyright 2025 Henrik Jensen
 //
 // Licensed under the Apache License, Version 2.0 (the "License")
@@ -16,17 +16,16 @@
 
 namespace Hj.ReverseProxy.Certificate;
 
-internal static class CertificateConstants
+/// <summary>
+/// Defines a strategy for loading CA certificates from PEM files.
+/// </summary>
+internal interface ICaLoader
 {
-  public const string RsaOid = "1.2.840.113549.1.1.1";
-
-  public const string EcdsaOid = "1.2.840.10045.2.1";
-
-  public const string DefaultCaSubjectName = "CN=ReverseProxy Root CA";
-
-  public const string DefaultCaName = "ReverseProxy-RootCA";
-
-  public const string CaCrtFileExtension = ".crt.pem";
-
-  public const string CaKeyFileExtension = ".key.pem";
+  /// <summary>
+  /// Loads a CA certificate from PEM-encoded certificate and key content.
+  /// </summary>
+  /// <param name="certContents">The PEM-encoded certificate content.</param>
+  /// <param name="keyContents">The PEM-encoded private key content.</param>
+  /// <returns>An <see cref="X509Certificate2"/> instance with the private key attached.</returns>
+  X509Certificate2 LoadFromPem(string certContents, string keyContents);
 }

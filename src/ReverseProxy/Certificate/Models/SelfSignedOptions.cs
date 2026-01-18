@@ -18,6 +18,8 @@ namespace Hj.ReverseProxy.Certificate.Models;
 
 internal sealed class SelfSignedOptions
 {
+  public required string CaName { get; set; }
+
   public required string CaFilePath { get; set; }
 
   public required string AlgorithmOid { get; set; }

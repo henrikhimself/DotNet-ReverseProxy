@@ -34,7 +34,11 @@ internal interface ICertificateStrategy
 
   X509SignatureGenerator GetSignatureGenerator(X509Certificate2 certificate);
 
+  X509SignatureGenerator GetSignatureGenerator(AsymmetricAlgorithm key);
+
   X509Certificate2 CopyWithPrivateKey(X509Certificate2 certificate, AsymmetricAlgorithm key);
 
   string ExportPrivateKeyPem(X509Certificate2 certificate);
+
+  string ExportPrivateKeyPem(AsymmetricAlgorithm key);
 }

@@ -64,8 +64,8 @@ aSkb7U6H7JZHgRuXcDt0/uIx/bguxUNKGQ==
       SetHappyPath(arrange);
 
       fileStore = arrange.Instance<IFileStore>();
-      fileStore.ReadAllText(Arg.Is<string>(x => Path.GetFileName(x) == CertificateConstants.CaCrtFileName)).Returns(caCrtPem);
-      fileStore.ReadAllText(Arg.Is<string>(x => Path.GetFileName(x) == CertificateConstants.CaKeyFileName)).Returns(caKeyPem);
+      fileStore.ReadAllText(Arg.Is<string>(x => Path.GetFileName(x) == CertificateConstants.DefaultCaName + CertificateConstants.CaCrtFileExtension)).Returns(caCrtPem);
+      fileStore.ReadAllText(Arg.Is<string>(x => Path.GetFileName(x) == CertificateConstants.DefaultCaName + CertificateConstants.CaKeyFileExtension)).Returns(caKeyPem);
     });
 
     // act
@@ -151,12 +151,28 @@ aSkb7U6H7JZHgRuXcDt0/uIx/bguxUNKGQ==
     arrange.Instance<CertificateEcdsa>();
     arrange.Instance<CertificateRsa>();
 
+#if NET8_0
+    if (OperatingSystem.IsMacOS())
+    {
+      arrange.Instance<ICaLoader, MacOSNet8CaLoader>();
+      arrange.Instance<ICertificateCreator, MacOSNet8CertificateCreator>();
+    }
+    else
+    {
+      arrange.Instance<ICaLoader, DefaultCaLoader>();
+      arrange.Instance<ICertificateCreator, DefaultCertificateCreator>();
+    }
+#else
+    arrange.Instance<ICaLoader, DefaultCaLoader>();
+    arrange.Instance<ICertificateCreator, DefaultCertificateCreator>();
+#endif
+
     var fileStore = arrange.Instance<IFileStore>();
     fileStore.CombinePath(Arg.Any<string>(), Arg.Any<string>()).Returns(args => Path.Combine(args.ArgAt<string>(0), args.ArgAt<string>(1)));
     fileStore.GetFullPath(Arg.Any<string>()).Returns(args => args.ArgAt<string>(0));
     fileStore.FileExists(Arg.Any<string>()).Returns(true);
     fileStore.DirectoryExists(Arg.Any<string>()).Returns(true);
-    fileStore.ReadAllText(Arg.Is<string>(x => Path.GetFileName(x) == CertificateConstants.CaCrtFileName)).Returns(TestRsaCaCrt);
-    fileStore.ReadAllText(Arg.Is<string>(x => Path.GetFileName(x) == CertificateConstants.CaKeyFileName)).Returns(TestRsaCaKey);
+    fileStore.ReadAllText(Arg.Is<string>(x => Path.GetFileName(x) == CertificateConstants.DefaultCaName + CertificateConstants.CaCrtFileExtension)).Returns(TestRsaCaCrt);
+    fileStore.ReadAllText(Arg.Is<string>(x => Path.GetFileName(x) == CertificateConstants.DefaultCaName + CertificateConstants.CaKeyFileExtension)).Returns(TestRsaCaKey);
   }
 }

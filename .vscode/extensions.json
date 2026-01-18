@@ -1,6 +1,11 @@
 {
   "recommendations": [
     "editorconfig.editorconfig",
-    "ms-dotnettools.csdevkit"
+    "github.copilot-chat",
+    "github.vscode-github-actions",
+    "ms-vscode.powershell",
+    "ms-dotnettools.csdevkit",
+    "ms-vscode.live-server",
+    "microsoft-aspire.aspire-vscode"
   ]
 }

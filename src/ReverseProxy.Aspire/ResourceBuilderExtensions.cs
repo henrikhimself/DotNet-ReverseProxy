@@ -18,10 +18,24 @@ namespace Hj.ReverseProxy.Aspire;
 
 public static class ResourceBuilderExtensions
 {
-  public static IResourceBuilder<T> WithReverseProxyReference<T>(this IResourceBuilder<T> builder, string serviceName, EndpointReference endpointReference, string hostName, int port = 443)
+  public static IResourceBuilder<T> WithReverseProxyReference<T>(this IResourceBuilder<T> builder, string serviceName, EndpointReference endpointReference, string hostName)
     where T : IResourceWithEnvironment
   {
-    var externalUrl = $"https://{hostName}:{port}";
+    var endpointAnnotation = builder.Resource.Annotations.OfType<EndpointAnnotation>().SingleOrDefault(a => a.Name == "https")
+    ?? throw new InvalidOperationException($"Resource '{builder.Resource.Name}' does not have an HTTPS endpoint yet that we use.");
+
+    var externalUrl = $"https://{hostName}";
+
+    var port = endpointAnnotation.Port;
+    if (port == 443)
+    {
+      port = null;
+    }
+
+    if (port.HasValue)
+    {
+      externalUrl += $":{port.Value}";
+    }
 
     builder
       .WithUrl(externalUrl)

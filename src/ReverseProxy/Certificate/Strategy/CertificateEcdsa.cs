@@ -30,10 +30,15 @@ internal sealed class CertificateEcdsa : ICertificateStrategy
   public X509SignatureGenerator GetSignatureGenerator(X509Certificate2 certificate)
     => X509SignatureGenerator.CreateForECDsa(GetKey(certificate));
 
+  public X509SignatureGenerator GetSignatureGenerator(AsymmetricAlgorithm key)
+    => X509SignatureGenerator.CreateForECDsa((ECDsa)key);
+
   public X509Certificate2 CopyWithPrivateKey(X509Certificate2 certificate, AsymmetricAlgorithm key)
     => certificate.CopyWithPrivateKey((ECDsa)key);
 
   public string ExportPrivateKeyPem(X509Certificate2 certificate) => GetKey(certificate).ExportECPrivateKeyPem();
+
+  public string ExportPrivateKeyPem(AsymmetricAlgorithm key) => ((ECDsa)key).ExportECPrivateKeyPem();
 
   private static ECDsa GetKey(X509Certificate2 certificate)
     => certificate.GetECDsaPrivateKey() ?? throw new InvalidOperationException("Certificate has no private key");

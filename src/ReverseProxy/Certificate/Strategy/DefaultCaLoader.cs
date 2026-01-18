@@ -1,4 +1,4 @@
-// <copyright file="RouteInputDto.cs" company="Henrik Jensen">
+// <copyright file="DefaultCaLoader.cs" company="Henrik Jensen">
 // Copyright 2025 Henrik Jensen
 //
 // Licensed under the Apache License, Version 2.0 (the "License")
@@ -14,13 +14,16 @@
 // limitations under the License.
 // </copyright>
 
-using Yarp.ReverseProxy.Configuration;
+namespace Hj.ReverseProxy.Certificate.Strategy;
 
-namespace Hj.ReverseProxy.ReverseProxy.Models;
-
-internal sealed class RouteInputDto
+/// <summary>
+/// Default implementation for loading CA certificates using the standard .NET API.
+/// </summary>
+internal sealed class DefaultCaLoader : ICaLoader
 {
-  public List<RouteConfig>? Routes { get; set; }
-
-  public bool AllowOverwrite { get; set; }
+  /// <inheritdoc/>
+  public X509Certificate2 LoadFromPem(string certContents, string keyContents)
+  {
+    return X509Certificate2.CreateFromPem(certContents, keyContents);
+  }
 }
