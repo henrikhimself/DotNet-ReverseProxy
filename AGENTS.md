@@ -110,7 +110,7 @@ IMPORTANT! Always prefer official documentation when available. The following si
 - `test/ReverseProxy.UnitTest/ReverseProxy/ReverseProxyAppTests.cs`: Tests configuration management
 - `test/ReverseProxy.UnitTest/Certificate/CertificateAppTests.cs`: Tests certificate generation
 - `test/ReverseProxy.UnitTest/Certificate/CertificateConfigTests.cs`: Tests configuration management
-- `test/ReverseProxy.Aspire.UnitTest/ServiceDiscoveryTests.cs`: Tests the Apsire service discovery
+- `test/ReverseProxy.Aspire.UnitTest/ServiceDiscoveryTests.cs`: Tests the Aspire service discovery
 
 ### Running Tests
 To test the library run the following command from the solution root:
