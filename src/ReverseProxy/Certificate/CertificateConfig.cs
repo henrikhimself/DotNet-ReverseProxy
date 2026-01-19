@@ -31,12 +31,14 @@ internal sealed class CertificateConfig(
       throw new InvalidOperationException("CA file path is not configured");
     }
 
-    // Expand {REVERSEPROXY_HOME} token if present: use env var if set, otherwise use user home directory
-    // If token is not present, use the path as-is (physical file path)
     if (selfSignedOptions.CaFilePath.Contains("{REVERSEPROXY_HOME}", StringComparison.Ordinal))
     {
-      var reverseProxyHome = Environment.GetEnvironmentVariable("REVERSEPROXY_HOME")
-        ?? Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+      var reverseProxyHome = Environment.GetEnvironmentVariable("REVERSEPROXY_HOME");
+      if (string.IsNullOrWhiteSpace(reverseProxyHome))
+      {
+        throw new InvalidOperationException("Environment variable REVERSEPROXY_HOME is not set");
+      }
+
       selfSignedOptions.CaFilePath = selfSignedOptions.CaFilePath.Replace("{REVERSEPROXY_HOME}", reverseProxyHome, StringComparison.Ordinal);
     }
 

@@ -3,6 +3,7 @@ using Microsoft.Extensions.Configuration;
 
 namespace Hj.ReverseProxy.UnitTest.Certificate;
 
+[Collection("EnvironmentVariable")]
 public class CertificateConfigTests
 {
   [Fact]
@@ -78,34 +79,42 @@ public class CertificateConfigTests
     Assert.Equal(expectedPath, result.CaFilePath);
   }
 
-  [Fact]
-  public void GetOptions_GivenReverseProxyHomeToken_ExpandsToUserHomeWhenEnvVarNotSet()
+  [Theory]
+  [InlineData(null)]
+  [InlineData("")]
+  public void GetOptions_GivenInvalidReverseProxyHome_Throws(string? homeValue)
   {
     // arrange
-    Environment.SetEnvironmentVariable("REVERSEPROXY_HOME", null);
-    var expectedPath = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
-    var configuration = CreateConfiguration(new()
+    var originalHome = Environment.GetEnvironmentVariable("REVERSEPROXY_HOME");
+    try
     {
-      { "SelfSignedCertificate:CaFilePath", "{REVERSEPROXY_HOME}" },
-    });
+      Environment.SetEnvironmentVariable("REVERSEPROXY_HOME", homeValue);
 
-    var sut = new CertificateConfig(configuration);
+      var configuration = CreateConfiguration(new()
+      {
+        { "SelfSignedCertificate:CaFilePath", "{REVERSEPROXY_HOME}" },
+      });
 
-    // act
-    var result = sut.GetOptions();
+      var sut = new CertificateConfig(configuration);
 
-    // assert
-    Assert.Equal(expectedPath, result.CaFilePath);
+      // act & assert
+      Assert.ThrowsAny<InvalidOperationException>(sut.GetOptions);
+    }
+    finally
+    {
+      Environment.SetEnvironmentVariable("REVERSEPROXY_HOME", originalHome);
+    }
   }
 
   [Fact]
-  public void GetOptions_GivenReverseProxyHomeToken_ExpandsToEnvVarWhenSet()
+  public void GetOptions_GivenReverseProxyHome_UsesPathFromEnv()
   {
     // arrange
-    const string CustomPath = "/custom/reverseproxy/path";
+    var originalHome = Environment.GetEnvironmentVariable("REVERSEPROXY_HOME");
     try
     {
-      Environment.SetEnvironmentVariable("REVERSEPROXY_HOME", CustomPath);
+      Environment.SetEnvironmentVariable("REVERSEPROXY_HOME", "/custom");
+
       var configuration = CreateConfiguration(new()
       {
         { "SelfSignedCertificate:CaFilePath", "{REVERSEPROXY_HOME}" },
@@ -117,11 +126,11 @@ public class CertificateConfigTests
       var result = sut.GetOptions();
 
       // assert
-      Assert.Equal(CustomPath, result.CaFilePath);
+      Assert.Equal("/custom", result.CaFilePath);
     }
     finally
     {
-      Environment.SetEnvironmentVariable("REVERSEPROXY_HOME", null);
+      Environment.SetEnvironmentVariable("REVERSEPROXY_HOME", originalHome);
     }
   }
 
