@@ -14,6 +14,9 @@
 // limitations under the License.
 // </copyright>
 
+using Aspire.Hosting;
+using Aspire.Hosting.ApplicationModel;
+
 namespace Hj.ReverseProxy.Aspire;
 
 public static class ResourceBuilderExtensions
