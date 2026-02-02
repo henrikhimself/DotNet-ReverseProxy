@@ -5,7 +5,7 @@
   <ItemGroup>
     <PackageVersion Include="Aspire.Hosting" Version="13.1.0" />
     <PackageVersion Include="coverlet.collector" Version="6.0.4" />
-    <PackageVersion Include="HenrikJensen.SutFactory" Version="1.0.0-beta2" />
+    <PackageVersion Include="HenrikJensen.SutFactory" Version="1.0.0-beta3" />
     <PackageVersion Include="Microsoft.CodeAnalysis.CSharp" Version="5.0.0" />
     <PackageVersion Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.0" />
     <PackageVersion Include="Microsoft.Extensions.Http.Resilience" Version="9.9.0" />
