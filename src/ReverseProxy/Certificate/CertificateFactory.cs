@@ -83,11 +83,12 @@ internal sealed class CertificateFactory(
       validTo,
       serialNumber);
 
-    // EphemeralKeySet is not supported on macOS (requires keychain which writes to disk)
-    // but is supported on Windows, Linux, iOS/tvOS/MacCatalyst, and Android
-    var keyStorageFlags = OperatingSystem.IsMacOS()
-      ? X509KeyStorageFlags.Exportable
-      : X509KeyStorageFlags.Exportable | X509KeyStorageFlags.EphemeralKeySet;
+    // EphemeralKeySet is only usable on Linux where SslStream is backed by OpenSSL.
+    // On Windows, Schannel requires the private key to be persisted in a CNG key
+    // container. On macOS, EphemeralKeySet is not supported (requires keychain).
+    var keyStorageFlags = OperatingSystem.IsLinux()
+      ? X509KeyStorageFlags.Exportable | X509KeyStorageFlags.EphemeralKeySet
+      : X509KeyStorageFlags.Exportable;
 
 #pragma warning disable SYSLIB0057 // Type or member is obsolete
     var pfx = new X509Certificate2(pfxBytes, (string?)null, keyStorageFlags);
