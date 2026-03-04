@@ -26,6 +26,11 @@ var app = builder.Build();
 // Use the configured reverse proxy.
 app.UseReverseProxy();
 
+// Use the optional reverse proxy API to manage the reverse proxy configuration at runtime.
+// Beware that adding new routes/clusters will clear discovered Aspire resources from the configuration.
+// See ReverseProxyApi.http for example usage of the API.
+app.UseReverseProxyApi("reverse-proxy-api");
+
 // No further routes are registered. This means that you will get a 404 error status on all requests
 // that do not match a proxied Aspire resource.
 await app.RunAsync();
