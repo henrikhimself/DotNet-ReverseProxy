@@ -2,7 +2,7 @@
 
 [Features](#features) • [Quick Start](#quick-start) • [Usage](#usage) • [Examples](#examples) • [API Reference](#api-reference)
 
-A .NET library that combines [Microsoft YARP](https://microsoft.github.io/reverse-proxy/) (Yet Another Reverse Proxy) with runtime configuration APIs and automatic self-signed certificate generation. Designed to simplify development and testing of reverse proxy scenarios with minimal setup.
+A .NET library that combines Microsoft YARP (Yet Another Reverse Proxy) with runtime configuration APIs and automatic self-signed certificate generation. Designed to simplify development and testing of reverse proxy scenarios with minimal setup.
 
 ## Features
 
@@ -16,8 +16,8 @@ A .NET library that combines [Microsoft YARP](https://microsoft.github.io/revers
 
 ## Prerequisites
 
-- [.NET 8.0 SDK](https://dotnet.microsoft.com/download/dotnet/8.0) or [.NET 10.0 SDK](https://dotnet.microsoft.com/download/dotnet/10.0)
-- [Aspire](https://aspire.dev/get-started/prerequisites/) (if using Aspire integration)
+- Supported .NET SDK LTS
+- Aspire (if using Aspire integration)
 
 ## Quick Start
 
