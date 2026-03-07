@@ -53,10 +53,10 @@ builder.Services.ConfigureReverseProxy(builder.Configuration);
 builder.Services.AddTransient<IStartupFilter, ServiceDiscoveryStartupFilter>();
 
 // Map the reverse proxy
-app.MapReverseProxy();
+app.UseReverseProxy();
 
 // Map the runtime configuration API (optional)
-app.MapReverseProxyApi();
+app.UseReverseProxyApi();
 ```
 
 **2. Start your application:**
