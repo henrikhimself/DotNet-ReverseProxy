@@ -270,7 +270,7 @@ builder.WebHost.ConfigureKestrel(options =>
 Registers reverse proxy services in the DI container.
 
 ```csharp
-builder.Services.ConfigureReverseProxy();
+builder.Services.ConfigureReverseProxy(builder.Configuration);
 ```
 
 #### `MapReverseProxyApi()`
