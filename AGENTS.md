@@ -6,7 +6,8 @@ This repository is a .NET library that combines Microsoft YARP (Yet Another Reve
 The `src/ReverseProxy` directory implements the core functionality of the library. The `src/ReverseProxy.Aspire` directory is an extension that integrates `src/ReverseProxy` into an Aspire solution for managing YARP route/cluster configuration.
 
 ### Technology Stack
-- .NET 10.0 (LTS)
+- .NET 10.0
+- .NET 8.0
 - Aspire
 - C#
 - Multi-platform support (Windows, Linux, macOS, containers)
