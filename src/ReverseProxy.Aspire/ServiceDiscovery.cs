@@ -27,7 +27,7 @@ internal static class ServiceDiscovery
     {
       var serviceName = hostMapping.Key;
       var hostName = hostMapping.Value;
-      if (serviceName == null || hostName == null)
+      if (serviceName is null || hostName is null)
       {
         continue;
       }
@@ -61,7 +61,7 @@ internal static class ServiceDiscovery
       if (section.Exists())
       {
         var uriStrings = section.Get<string[]>();
-        if (uriStrings == null || allowAllSchemes)
+        if (uriStrings is null || allowAllSchemes)
         {
           return uriStrings ?? [];
         }

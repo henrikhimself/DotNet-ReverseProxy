@@ -63,7 +63,7 @@ internal sealed class CertificateApp(
   private X509Certificate2 GetOrCreateCa(SelfSignedOptions selfSignedOptions)
   {
     var ca = certificateStore.LoadCa(selfSignedOptions);
-    if (ca == null)
+    if (ca is null)
     {
       using var key = certificateFactory.CreateKey(selfSignedOptions.AlgorithmOid);
       ca = certificateFactory.CreateCa(key, selfSignedOptions.SubjectName);

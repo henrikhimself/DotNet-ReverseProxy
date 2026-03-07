@@ -1,11 +1,10 @@
 {
   "recommendations": [
     "editorconfig.editorconfig",
-    "github.copilot-chat",
     "github.vscode-github-actions",
+    "humao.rest-client",
     "ms-vscode.powershell",
     "ms-dotnettools.csdevkit",
-    "ms-vscode.live-server",
     "microsoft-aspire.aspire-vscode"
   ]
 }

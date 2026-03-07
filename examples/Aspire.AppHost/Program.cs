@@ -16,7 +16,8 @@ var website = builder.AddProject<Examples_Aspire_Website>("Website", options =>
 // Add reverse proxy website. The following shows 3 scenarios for configuring HTTPS endpoints.
 var reverseProxy = builder
   .AddProject<Examples_Aspire_ReverseProxy>("Reverse-Proxy")
-  .WithExternalHttpEndpoints();
+  .WithExternalHttpEndpoints()
+  .WithEnvironment("ASPNETCORE_ENVIRONMENT", "Development"); // Made for developers.
 
 // Configure the reverse proxy to use HTTPS on port 443 to allow nice urls without port numbers. This requires admin/root
 // privileges when starting the apphost and may not work if you forward ports for remote development.
@@ -34,7 +35,7 @@ reverseProxy.WithHttpsEndpoint(port: 8443);
 //   .WithEnvironment("ASPNETCORE_URLS", "https://0.0.0.0:8443");
 
 // Add each website with a nice host name. Since we apply HTTPS using the reverse proxy by configuring the endpoint above,
-// we can use the HTTP endpoint of each proxied website without worrying about security.
+// we can use the HTTP endpoint of each proxied website.
 reverseProxy.WithReverseProxyReference("Website", website.GetEndpoint("http"), "example-website.local");
 
 // Wait for the website to be healthy before starting the reverse proxy.

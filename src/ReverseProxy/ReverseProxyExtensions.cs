@@ -38,7 +38,7 @@ public static class ReverseProxyExtensions
     {
       httpsOptions.ServerCertificateSelector = (context, hostName) =>
       {
-        if (hostName == null)
+        if (hostName is null)
         {
           return null;
         }

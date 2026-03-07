@@ -36,8 +36,8 @@ GET {{Test_HostAddress}}/reverse-proxy-api/route
 
 ###
 # Add route
-# Add a route that matches requests to /catfact and forwards them to the catfact cluster. The route also
-# includes a transform to remove the /catfact prefix before forwarding the request to the destination.
+# Add a route that matches requests to /catfact-from-api and forwards them to the catfact cluster. The route also
+# includes a transform to remove the /catfact-from-api prefix before forwarding the request to the destination.
 POST {{Test_HostAddress}}/reverse-proxy-api/route
 Content-Type: application/json
 
@@ -48,7 +48,7 @@ Content-Type: application/json
       "ClusterId": "catfact-from-api",
       "Order": 100,
       "Match": {
-        "Path": "catfact-from-api/{**catch-all}"
+        "Path": "/catfact-from-api/{**catch-all}"
       },
       "Transforms": [
         {
