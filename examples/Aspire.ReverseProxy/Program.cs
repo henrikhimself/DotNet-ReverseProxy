@@ -31,7 +31,7 @@ app.UseReverseProxy();
 // See ReverseProxyApi.http for example usage of the API.
 if (app.Environment.IsDevelopment())
 {
-  // This example allow unauthenticated access for simplicity.
+  // This example allows unauthenticated access for simplicity.
   app.UseReverseProxyApi("reverse-proxy-api");
 }
 
