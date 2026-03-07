@@ -273,11 +273,11 @@ Registers reverse proxy services in the DI container.
 builder.Services.ConfigureReverseProxy(builder.Configuration);
 ```
 
-#### `MapReverseProxyApi()`
+#### `UseReverseProxyApi()`
 Maps the runtime configuration API endpoints with an optional route prefix.
 
 ```csharp
-app.MapReverseProxyApi(routePrefix: "/api");
+app.UseReverseProxyApi(routePrefix: "/api");
 ```
 
 #### `WithReverseProxyReference()`
