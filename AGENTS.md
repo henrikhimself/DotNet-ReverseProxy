@@ -1,9 +1,48 @@
-# Copilot instructions
+# Agent Instructions
 
 ## Project Overview
 This repository is a .NET library that combines Microsoft YARP (Yet Another Reverse Proxy) with runtime configuration APIs and automatic self-signed ephemeral certificate generation. It's designed to simplify development and testing of reverse proxy scenarios. The `examples/` directory is set up to use Aspire. Aspire is an orchestrator for the entire application and will take care of configuring dependencies, building, and running the application. The resources that make up the application are defined in `examples/Aspire.AppHost/Program.cs` including application code and external dependencies.
 
 The `src/ReverseProxy` directory implements the core functionality of the library. The `src/ReverseProxy.Aspire` directory is an extension that integrates `src/ReverseProxy` into an Aspire solution for managing YARP route/cluster configuration.
+
+### Technology Stack
+- .NET 10.0 (LTS)
+- Aspire
+- C#
+- Multi-platform support (Windows, Linux, macOS, containers)
+
+## General
+* Make only high confidence suggestions when reviewing code changes.
+* Always use the version of C# that matches the latest .NET LTS.
+* Always use the latest released (stable) version of Aspire.
+* Never change global.json unless explicitly asked to.
+* Never change package.json or package-lock.json files unless explicitly asked to.
+* Never change NuGet.config files unless explicitly asked to.
+
+## Formatting
+* Apply code-formatting style defined in `.editorconfig` and `.editorconfig` files in nested directories.
+* Prefer file-scoped namespace declarations and single-line using directives.
+* Insert a newline before the opening curly brace of any code block (e.g., after `if`, `for`, `while`, `foreach`, `using`, `try`, etc.).
+* Ensure that the final return statement of a method is on its own line.
+* Use pattern matching and switch expressions wherever possible.
+* Use `nameof` instead of string literals when referring to member names.
+* Place private class declarations at the bottom of the file.
+
+### Nullable Reference Types
+* Declare variables non-nullable, and check for `null` at entry points.
+* Always use `is null` or `is not null` instead of `== null` or `!= null`.
+* Trust the C# null annotations and don't add null checks when the type system says a value cannot be null.
+
+## Markdown files
+* Markdown files should not have multiple consecutive blank lines.
+* Code blocks should be formatted with triple backticks (```) and include the language identifier for syntax highlighting.
+* JSON code blocks should be indented properly.
+
+## Available Skills
+The following specialized skills are available in `.github/skills/`:
+- **aspire**: Aspire skill covering the Aspire CLI, AppHost orchestration, service discovery, integrations, MCP server, VS Code extension, Dev Containers, templates, dashboard, and deployment
+
+## Project Layout and Architecture
 
 ### Key Components
 1. **ReverseProxy Core** (`src/ReverseProxy`)
@@ -20,8 +59,6 @@ The `src/ReverseProxy` directory implements the core functionality of the librar
    - AppHost: Aspire app host demonstrating the reverse proxy in action
    - ReverseProxy: Example reverse proxy service using the library
    - Website: Example backend service discoverable by the proxy
-
-## Architecture Patterns
 
 ### Configuration Layering
 - **InMemoryConfigProvider**: Holds runtime-added routes/clusters
@@ -46,56 +83,6 @@ Use the extension methods in `src/ReverseProxy/ReverseProxyExtensions.cs` to con
 - **Caching**: IMemoryCache prevents redundant certificate generation
 - **Wildcard Support**: Handles both `*.example.com` and specific domain names
 - **Self-Signed CA**: Generated once and installed into the trusted root store on the platform; certificates derive trust from it
-
-## General recommendations for working with Aspire
-1. Before making any changes in the `examples/` directory, always run the apphost using `aspire run` and inspect the state of resources to make sure you are building from a known state.
-1. Changes to the `examples/Aspire.AppHost/Program.cs` file will require a restart of the application to take effect.
-2. Make changes incrementally and run the aspire application using the `aspire run` command to validate changes.
-3. Use the Aspire MCP tools to check the status of resources and debug issues.
-
-## Running the example application
-To run the example application run the following command:
-
-```
-aspire run
-```
-
-If there is already an instance of the application running it will prompt to stop the existing instance. You only need to restart the application if code in `examples/Aspire.AppHost/Program.cs` is changed, but if you experience problems it can be useful to reset everything to the starting state.
-
-## Checking Aspire resources
-To check the status of Aspire resources defined in the AppHost model use the _list resources_ tool. This will show you the current state of each resource and if there are any issues. If a resource is not running as expected you can use the _execute resource command_ tool to restart it or perform other actions.
-
-## Listing Aspire integrations
-IMPORTANT! When a user asks you to add a resource to the AppHost model you should first use the _list integrations_ tool to get a list of the current versions of all the available integrations. You should try to use the version of the integration which aligns with the version of the Aspire.AppHost.Sdk. Some integration versions may have a preview suffix. Once you have identified the correct integration you should always use the _get integration docs_ tool to fetch the latest documentation for the integration and follow the links to get additional guidance.
-
-## Debugging Aspire issues
-IMPORTANT! Aspire is designed to capture rich logs and telemetry for all resources defined in the AppHost model. Use the following diagnostic tools when debugging issues with the application before making changes to make sure you are focusing on the right things.
-
-1. _list structured logs_; use this tool to get details about structured logs.
-2. _list console logs_; use this tool to get details about console logs.
-3. _list traces_; use this tool to get details about traces.
-4. _list trace structured logs_; use this tool to get logs related to a trace
-
-## Other Aspire MCP tools
-1. _select apphost_; use this tool if working with multiple app hosts within a workspace.
-2. _list apphosts_; use this tool to get details about active app hosts.
-
-## Updating the Aspire AppHost
-The user may request that you update the Aspire apphost. You can do this using the `aspire update` command. This will update the apphost to the latest version and some of the Aspire specific packages in referenced projects, however you may need to manually update other packages in the solution to ensure compatibility. You can consider using the `dotnet-outdated` with the users consent. To install the `dotnet-outdated` tool use the following command:
-
-```
-dotnet tool install --global dotnet-outdated-tool
-```
-
-## Aspire workload
-IMPORTANT! The aspire workload is obsolete. You should never attempt to install or use the Aspire workload.
-
-## Official Aspire documentation
-IMPORTANT! Always prefer official documentation when available. The following sites contain the official documentation for Aspire and related components.
-
-1. https://aspire.dev
-2. https://learn.microsoft.com/dotnet/aspire
-3. https://nuget.org (for specific integration package details)
 
 ## Testing Strategy
 
@@ -122,7 +109,8 @@ dotnet test
 ## Build & Development
 
 ### Multi-Targeting
-Projects target both `net8.0` and `net10.0`. Compatibility with Windows, macOS and Linux must be ensured when adding and changing code. Use dotnet test to verify.
+Projects target both `net8.0` and `net10.0`. Compatibility with Windows, macOS and Linux must be ensured when adding and changing code.
+Use dotnet test to verify.
 
 ### Code Analysis & Style
 - **EnforceCodeStyleInBuild**: Code style violations fail the build
@@ -153,3 +141,8 @@ Common namespaces are globally imported via `Directory.Build.props` and project 
 - **ICertificateConfig**: Customize certificate generation options (algorithm, subject name)
 - **IFileStore**: Abstract file storage for certificates
 
+## Trust These Instructions
+These instructions are comprehensive and tested. Only search for additional information if:
+1. The instructions appear outdated or incorrect
+2. You encounter specific errors not covered here
+3. You need details about new features not yet documented

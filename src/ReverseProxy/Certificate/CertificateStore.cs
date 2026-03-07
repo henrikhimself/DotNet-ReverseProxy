@@ -63,7 +63,7 @@ internal sealed class CertificateStore(
 
     // On macOS, export PEM from the original key object before it's attached to the certificate
     // because ECDSA keys in the macOS keychain aren't exportable even after reload
-    var keyPem = key != null
+    var keyPem = key is not null
       ? certificateFactory.ExportPrivateKeyPem(key)
       : certificateFactory.ExportPrivateKeyPem(ca);
     fileStore.WriteAllText(caKeyPemFilePath, keyPem);
