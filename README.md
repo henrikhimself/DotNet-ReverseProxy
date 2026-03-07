@@ -259,37 +259,20 @@ An optional route prefix can be provided during configuration.
 #### `UseSelfSignedCertificate()`
 Enables automatic self-signed certificate generation for HTTPS endpoints.
 
-```csharp
-builder.WebHost.ConfigureKestrel(options =>
-{
-    options.UseSelfSignedCertificate();
-});
-```
-
 #### `ConfigureReverseProxy()`
 Registers reverse proxy services in the DI container.
 
-```csharp
-builder.Services.ConfigureReverseProxy(builder.Configuration);
-```
+#### `UseReverseProxy()`
+Adds the reverse proxy middleware.
 
 #### `UseReverseProxyApi()`
 Maps the runtime configuration API endpoints with an optional route prefix.
 
-```csharp
-app.UseReverseProxyApi(routePrefix: "/api");
-```
+#### `UseBlackholeCatchAll()`
+Adds a blackhole route that causes unmatched routes to be ignored.
 
 #### `WithReverseProxyReference()`
 Configures Aspire service discovery for a resource service.
-
-```csharp
-reverseProxy.WithReverseProxyReference(
-    serviceName: "my-service",
-    endpoint: service.GetEndpoint("http"),
-    hostName: "my-service.local"
-);
-```
 
 ## Troubleshooting
 
