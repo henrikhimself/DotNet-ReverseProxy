@@ -210,7 +210,7 @@ curl http://localhost:5000/cluster
 
 ## Examples
 
-The [examples](examples/) directory contains a complete example demonstrating:
+The `examples` directory contains a complete example demonstrating:
 - A website using https and a custom host name
 - Configuring YARP routes/clusters via
     - Aspire service discovery integration
