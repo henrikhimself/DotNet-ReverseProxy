@@ -47,7 +47,7 @@ builder.WebHost.ConfigureKestrel(options =>
 });
 
 // Add reverse proxy services
-builder.Services.ConfigureReverseProxy();
+builder.Services.ConfigureReverseProxy(builder.Configuration);
 
 // Use service discovery to set up routes and clusters for Aspire resources (optional)
 builder.Services.AddTransient<IStartupFilter, ServiceDiscoveryStartupFilter>();
