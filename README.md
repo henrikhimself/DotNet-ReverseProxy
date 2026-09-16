@@ -135,34 +135,73 @@ using Hj.ReverseProxy.Aspire;
 
 var builder = DistributedApplication.CreateBuilder(args);
 
-// Add your backend resource service
-var website = builder.AddProject<Projects.MyWebsite>("website")
+// Add backend resources. The resource name becomes the service-discovery name.
+var websiteOne = builder.AddProject<Projects.MyWebsite>("website-one")
+    .WithHttpEndpoint();
+var websiteTwo = builder.AddProject<Projects.MyWebsite>("website-two")
     .WithHttpEndpoint();
 
-// Add reverse proxy with HTTPS
+// Add one reverse proxy HTTPS listener. Use 8443 when 443 is not available.
 var reverseProxy = builder
     .AddProject<Projects.ReverseProxy>("reverse-proxy")
-    .WithHttpsEndpoint(port: 443);
+    .WithHttpsEndpoint(port: 8443);
 
-// Configure reverse proxy to route to the website
+// Configure fixed public hosts that route to internal HTTP endpoints.
 reverseProxy.WithReverseProxyReference(
-    serviceName: "website",
-    endpoint: website.GetEndpoint("http"),
-    hostName: "my-website.local"
-);
+    endpointReference: websiteOne.GetEndpoint("http"),
+    hostName: "one.eshop.local",
+    forwardPublicOrigin: true);
+reverseProxy.WithReverseProxyReference(
+    endpointReference: websiteTwo.GetEndpoint("http"),
+    hostName: "two.eshop.local",
+    forwardPublicOrigin: true);
 
 await builder.Build().RunAsync();
 ```
 
-**Access your service:**
+**Access your services:**
 ```
-https://my-website.local
+https://one.eshop.local:8443
+https://two.eshop.local:8443
 ```
 
 The reverse proxy automatically:
-- Generates a trusted self-signed certificate for `my-website.local`
-- Discovers the website's endpoint from Aspire
-- Routes HTTPS traffic to your backend HTTP resource service
+- Generates a self-signed certificate for each configured hostname
+- Discovers each website endpoint from Aspire
+- Routes public HTTPS traffic to backend HTTP resource services
+
+Map each configured hostname to `127.0.0.1` and `::1` in your hosts file. The package
+does not modify hosts files or install CA trust. Store the generated CA outside source
+control, retain it between runs, and explicitly install it in the system trust store.
+
+### Forwarded public origin
+
+Set `forwardPublicOrigin: true` only for a target that needs the public HTTPS origin for
+absolute URLs or OIDC redirects. The proxy removes client-provided `X-Forwarded-For`,
+`X-Forwarded-Host`, and `X-Forwarded-Proto` values. It then sets only
+`X-Forwarded-Host` and `X-Forwarded-Proto` from the received request. It does not
+forward a client IP address and does not preserve the original public `Host` as the
+downstream origin contract.
+
+For example, an ASP.NET Core target can consume the proxy-created origin before it
+creates redirects or absolute URLs:
+
+```csharp
+app.UseForwardedHeaders(new ForwardedHeadersOptions
+{
+    ForwardedHeaders = ForwardedHeaders.XForwardedHost | ForwardedHeaders.XForwardedProto,
+});
+```
+
+Do not expose that target directly to untrusted clients when it relies on these headers.
+A target that does not need the public origin must pass `forwardPublicOrigin: false`.
+
+### Version 2.0.0 migration
+
+`WithReverseProxyReference` no longer accepts a free-form service name. Pass the target
+endpoint reference instead. The extension now derives the service-discovery name from
+that endpoint's resource. Add the required `forwardPublicOrigin` argument and choose
+`true` only for targets that consume the public origin.
 
 ### Runtime Configuration via API
 
@@ -211,7 +250,8 @@ curl http://localhost:5000/cluster
 ## Examples
 
 The `examples` directory contains a complete example demonstrating:
-- A website using https and a custom host name
+- Two websites using HTTPS and distinct custom host names through one proxy listener
+- Proxy-created forwarded public-origin headers
 - Configuring YARP routes/clusters via
     - Aspire service discovery integration
     - Appsettings.json file
@@ -220,18 +260,16 @@ The `examples` directory contains a complete example demonstrating:
 - A ReverseProxyApi.http file for calling the Runtime REST API
 
 **Run the example:**
-- Set the `REVERSEPROXY_HOME` environment variable, or update the `SelfSignedCertificate:CaFilePath` value in appsettings.json to specify where the generated Certificate Authority should be stored
-- Install the generated `ReverseProxy-RootCA` (pem or pfx) into your system's trusted root store
-- Add an entry to your hosts file that maps `example-website.local` to 127.0.0.1 and ::1
-- Consider rebooting to clear certificate and dns caches
+- The AppHost stores its generated CA under `~/.reverseproxy`, outside the repository
+- Install the generated `ReverseProxy-RootCA` (PEM or PFX) into your system's trusted root store
+- Add hosts-file entries that map `one.eshop.local` and `two.eshop.local` to `127.0.0.1` and `::1`
 
 ```bash
-cd examples/Aspire.AppHost
-dotnet run
+aspire start --apphost examples/Aspire.AppHost/Examples.Aspire.AppHost.csproj
 ```
 
 - Open the Aspire dashboard to see all services running
-- Open the website using the custom host name https://example-website.local:8443/
+- Open `https://one.eshop.local:8443/` or `https://two.eshop.local:8443/`
 
 ## API Reference
 
@@ -272,7 +310,9 @@ Maps the runtime configuration API endpoints with an optional route prefix.
 Adds a blackhole route that causes unmatched routes to be ignored.
 
 #### `WithReverseProxyReference()`
-Configures Aspire service discovery for a resource service.
+Configures Aspire service discovery for a resource endpoint. Its required
+`forwardPublicOrigin` argument controls whether the proxy supplies the secure public
+origin header contract.
 
 ## Troubleshooting
 
@@ -290,5 +330,6 @@ If you see port binding errors:
 
 ### Aspire service discovery not working
 
-Ensure:
-- Service names match between `WithReverseProxyReference()` and your resource service configuration
+Ensure that the referenced endpoint belongs to the target resource and that its HTTP
+endpoint is available. `WithReverseProxyReference()` derives the service-discovery name
+from that resource.
