@@ -19,6 +19,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Yarp.ReverseProxy.Configuration;
+using Yarp.ReverseProxy.Transforms;
 
 namespace Hj.ReverseProxy.Aspire;
 
@@ -47,7 +48,7 @@ public sealed class ServiceDiscoveryStartupFilter : IStartupFilter
 
     var hostMappings = ServiceDiscovery.ReadConfiguration(configuration);
 
-    foreach ((var serviceName, var hostName) in hostMappings)
+    foreach ((var serviceName, var hostName, var forwardPublicOrigin) in hostMappings)
     {
       var endpoints = ServiceDiscovery.DiscoverEndpointList(configuration, "https+http://" + serviceName);
       if (endpoints.Length == 0)
@@ -67,7 +68,7 @@ public sealed class ServiceDiscoveryStartupFilter : IStartupFilter
         Destinations = destinations,
       });
 
-      routes.Add(new RouteConfig()
+      var route = new RouteConfig()
       {
         RouteId = serviceName,
         ClusterId = serviceName,
@@ -76,7 +77,21 @@ public sealed class ServiceDiscoveryStartupFilter : IStartupFilter
           Hosts = [hostName],
           Path = "/{**catch-all}",
         },
-      });
+      };
+
+      if (forwardPublicOrigin)
+      {
+        route = route
+          .WithTransformXForwarded(
+            xDefault: ForwardedTransformActions.Remove,
+            xFor: ForwardedTransformActions.Remove,
+            xHost: ForwardedTransformActions.Set,
+            xProto: ForwardedTransformActions.Set,
+            xPrefix: ForwardedTransformActions.Remove)
+          .WithTransformUseOriginalHostHeader(useOriginal: false);
+      }
+
+      routes.Add(route);
     }
 
     inMemoryConfigProvider.Update(routes, clusters);

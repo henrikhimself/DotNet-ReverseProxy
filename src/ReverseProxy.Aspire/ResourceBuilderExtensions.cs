@@ -21,7 +21,7 @@ namespace Hj.ReverseProxy.Aspire;
 
 public static class ResourceBuilderExtensions
 {
-  public static IResourceBuilder<T> WithReverseProxyReference<T>(this IResourceBuilder<T> builder, string serviceName, EndpointReference endpointReference, string hostName)
+  public static IResourceBuilder<T> WithReverseProxyReference<T>(this IResourceBuilder<T> builder, string serviceName, EndpointReference endpointReference, string hostName, bool forwardPublicOrigin)
     where T : IResourceWithEnvironment
   {
     var endpointAnnotation = builder.Resource.Annotations.OfType<EndpointAnnotation>().SingleOrDefault(a => a.Name == "https")
@@ -46,6 +46,7 @@ public static class ResourceBuilderExtensions
       .WithEnvironment(context =>
       {
         context.EnvironmentVariables[$"{Constants.EnvPrefix}__{serviceName}"] = hostName;
+        context.EnvironmentVariables[$"{Constants.ForwardedOriginEnvPrefix}__{serviceName}"] = forwardPublicOrigin.ToString();
       });
 
     return builder;

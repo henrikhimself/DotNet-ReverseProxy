@@ -2,7 +2,9 @@ using Hj.ReverseProxy.Aspire;
 using Projects;
 
 var builder = DistributedApplication.CreateBuilder(args);
+
 var reverseProxyHome = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".reverseproxy");
+
 Directory.CreateDirectory(reverseProxyHome);
 
 // Add example websites. Both resources use the same project but return a distinct target name.
@@ -48,8 +50,8 @@ reverseProxy.WithHttpsEndpoint(port: 8443);
 
 // Add each website with a nice host name. Since we apply HTTPS using the reverse proxy by configuring the endpoint above,
 // we can use the HTTP endpoint of each proxied website.
-reverseProxy.WithReverseProxyReference("website-one", websiteOne.GetEndpoint("http"), "one.eshop.local");
-reverseProxy.WithReverseProxyReference("website-two", websiteTwo.GetEndpoint("http"), "two.eshop.local");
+reverseProxy.WithReverseProxyReference("website-one", websiteOne.GetEndpoint("http"), "one.eshop.local", forwardPublicOrigin: true);
+reverseProxy.WithReverseProxyReference("website-two", websiteTwo.GetEndpoint("http"), "two.eshop.local", forwardPublicOrigin: true);
 
 // Wait for both websites to be healthy before starting the reverse proxy.
 reverseProxy.WaitFor(websiteOne);

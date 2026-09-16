@@ -20,7 +20,7 @@ namespace Hj.ReverseProxy.Aspire;
 
 internal static class ServiceDiscovery
 {
-  public static IEnumerable<(string ServiceName, string HostName)> ReadConfiguration(IConfiguration configuration)
+  public static IEnumerable<(string ServiceName, string HostName, bool ForwardPublicOrigin)> ReadConfiguration(IConfiguration configuration)
   {
     var reverseProxySection = configuration.GetSection(Constants.EnvPrefix);
     foreach (var hostMapping in reverseProxySection.GetChildren())
@@ -32,7 +32,8 @@ internal static class ServiceDiscovery
         continue;
       }
 
-      yield return (serviceName, hostName);
+      var forwardPublicOrigin = configuration.GetValue<bool>($"{Constants.ForwardedOriginEnvPrefix}:{serviceName}");
+      yield return (serviceName, hostName, forwardPublicOrigin);
     }
   }
 

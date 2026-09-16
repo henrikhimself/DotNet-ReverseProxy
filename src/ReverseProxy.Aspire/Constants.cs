@@ -19,4 +19,5 @@ namespace Hj.ReverseProxy.Aspire;
 internal static class Constants
 {
   public const string EnvPrefix = "reverseproxy";
+  public const string ForwardedOriginEnvPrefix = "reverseproxyforwardedorigin";
 }
