@@ -17,6 +17,8 @@ app.UseForwardedHeaders(new ForwardedHeadersOptions
 
 app.MapDefaultEndpoints();
 
+app.MapGet("/target", (IConfiguration configuration) => configuration["EXAMPLE_TARGET_NAME"] ?? "unknown");
+
 app.UseRouting();
 
 app.MapControllerRoute(name: "default", pattern: "{controller=Home}/{action=Index}");

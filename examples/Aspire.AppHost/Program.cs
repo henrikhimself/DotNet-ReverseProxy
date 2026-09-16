@@ -2,22 +2,34 @@ using Hj.ReverseProxy.Aspire;
 using Projects;
 
 var builder = DistributedApplication.CreateBuilder(args);
+var reverseProxyHome = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".reverseproxy");
+Directory.CreateDirectory(reverseProxyHome);
 
-// Add example website.
-var website = builder.AddProject<Examples_Aspire_Website>("Website", options =>
+// Add example websites. Both resources use the same project but return a distinct target name.
+var websiteOne = builder.AddProject<Examples_Aspire_Website>("website-one", options =>
   {
-    // Do not use endpoint configuration found in the Website project. We let aspire set up everything.
+    // Do not use endpoint configuration found in the Website project. We let Aspire set up everything.
     options.ExcludeLaunchProfile = true;
     options.ExcludeKestrelEndpoints = true;
   })
   // Add a HTTP endpoint. The reverse proxy will set up a secure HTTPS endpoint for you to connect to this resource.
-  .WithHttpEndpoint();
+  .WithHttpEndpoint()
+  .WithEnvironment("EXAMPLE_TARGET_NAME", "one");
+
+var websiteTwo = builder.AddProject<Examples_Aspire_Website>("website-two", options =>
+  {
+    options.ExcludeLaunchProfile = true;
+    options.ExcludeKestrelEndpoints = true;
+  })
+  .WithHttpEndpoint()
+  .WithEnvironment("EXAMPLE_TARGET_NAME", "two");
 
 // Add reverse proxy website. The following shows 3 scenarios for configuring HTTPS endpoints.
 var reverseProxy = builder
   .AddProject<Examples_Aspire_ReverseProxy>("Reverse-Proxy")
   .WithExternalHttpEndpoints()
-  .WithEnvironment("ASPNETCORE_ENVIRONMENT", "Development"); // Made for developers.
+  .WithEnvironment("ASPNETCORE_ENVIRONMENT", "Development")
+  .WithEnvironment("REVERSEPROXY_HOME", reverseProxyHome); // Made for developers.
 
 // Configure the reverse proxy to use HTTPS on port 443 to allow nice urls without port numbers. This requires admin/root
 // privileges when starting the apphost and may not work if you forward ports for remote development.
@@ -36,9 +48,11 @@ reverseProxy.WithHttpsEndpoint(port: 8443);
 
 // Add each website with a nice host name. Since we apply HTTPS using the reverse proxy by configuring the endpoint above,
 // we can use the HTTP endpoint of each proxied website.
-reverseProxy.WithReverseProxyReference("Website", website.GetEndpoint("http"), "example-website.local");
+reverseProxy.WithReverseProxyReference("website-one", websiteOne.GetEndpoint("http"), "one.eshop.local");
+reverseProxy.WithReverseProxyReference("website-two", websiteTwo.GetEndpoint("http"), "two.eshop.local");
 
-// Wait for the website to be healthy before starting the reverse proxy.
-reverseProxy.WaitFor(website);
+// Wait for both websites to be healthy before starting the reverse proxy.
+reverseProxy.WaitFor(websiteOne);
+reverseProxy.WaitFor(websiteTwo);
 
 await builder.Build().RunAsync();
