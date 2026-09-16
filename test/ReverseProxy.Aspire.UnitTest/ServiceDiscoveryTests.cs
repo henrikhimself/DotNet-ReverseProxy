@@ -106,6 +106,56 @@ public class ServiceDiscoveryTests
     Assert.Empty(result);
   }
 
+  [Fact]
+  public void ReadConfiguration_GivenForwardedOriginEnabled_ReturnsMappingWithForwardedOrigin()
+  {
+    // arrange
+    var config = GetConfiguration(new Dictionary<string, string>()
+    {
+      { "reverseproxy:website", "one.eshop.local" },
+      { "reverseproxyforwardedorigin:website", "true" },
+    });
+
+    // act
+    var mapping = Assert.Single(ServiceDiscovery.ReadConfiguration(config));
+
+    // assert
+    Assert.Equal("website", mapping.ServiceName);
+    Assert.Equal("one.eshop.local", mapping.HostName);
+    Assert.True(mapping.ForwardPublicOrigin);
+  }
+
+  [Fact]
+  public void CreateRouteConfig_GivenForwardedOriginEnabled_ConfiguresProxyAuthoritativeForwardedHeaders()
+  {
+    // arrange & act
+    var route = ServiceDiscoveryStartupFilter.CreateRouteConfig("website", "one.eshop.local", forwardPublicOrigin: true);
+
+    // assert
+    var transforms = route.Transforms;
+    Assert.NotNull(transforms);
+
+    var forwardedTransform = Assert.Single(transforms, transform => transform.ContainsKey("X-Forwarded"));
+    Assert.Equal("Remove", forwardedTransform["X-Forwarded"]);
+    Assert.Equal("Remove", forwardedTransform["For"]);
+    Assert.Equal("Set", forwardedTransform["Host"]);
+    Assert.Equal("Set", forwardedTransform["Proto"]);
+    Assert.Equal("Remove", forwardedTransform["Prefix"]);
+
+    var originalHostTransform = Assert.Single(transforms, transform => transform.ContainsKey("RequestHeaderOriginalHost"));
+    Assert.Equal("False", originalHostTransform["RequestHeaderOriginalHost"]);
+  }
+
+  [Fact]
+  public void CreateRouteConfig_GivenForwardedOriginDisabled_DoesNotConfigureForwardedHeaders()
+  {
+    // arrange & act
+    var route = ServiceDiscoveryStartupFilter.CreateRouteConfig("website", "one.eshop.local", forwardPublicOrigin: false);
+
+    // assert
+    Assert.Null(route.Transforms);
+  }
+
   private static IConfiguration GetConfiguration(Dictionary<string, string> settings)
   {
     var initialData = settings.Select(kvp => new KeyValuePair<string, string?>(kvp.Key, kvp.Value));

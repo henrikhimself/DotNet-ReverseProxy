@@ -39,6 +39,34 @@ public sealed class ServiceDiscoveryStartupFilter : IStartupFilter
     };
   }
 
+  internal static RouteConfig CreateRouteConfig(string serviceName, string hostName, bool forwardPublicOrigin)
+  {
+    var route = new RouteConfig()
+    {
+      RouteId = serviceName,
+      ClusterId = serviceName,
+      Match = new()
+      {
+        Hosts = [hostName],
+        Path = "/{**catch-all}",
+      },
+    };
+
+    if (!forwardPublicOrigin)
+    {
+      return route;
+    }
+
+    return route
+      .WithTransformXForwarded(
+        xDefault: ForwardedTransformActions.Remove,
+        xFor: ForwardedTransformActions.Remove,
+        xHost: ForwardedTransformActions.Set,
+        xProto: ForwardedTransformActions.Set,
+        xPrefix: ForwardedTransformActions.Remove)
+      .WithTransformUseOriginalHostHeader(useOriginal: false);
+  }
+
   private static void ConfigureYarp(
     IConfiguration configuration,
     InMemoryConfigProvider inMemoryConfigProvider)
@@ -68,30 +96,7 @@ public sealed class ServiceDiscoveryStartupFilter : IStartupFilter
         Destinations = destinations,
       });
 
-      var route = new RouteConfig()
-      {
-        RouteId = serviceName,
-        ClusterId = serviceName,
-        Match = new()
-        {
-          Hosts = [hostName],
-          Path = "/{**catch-all}",
-        },
-      };
-
-      if (forwardPublicOrigin)
-      {
-        route = route
-          .WithTransformXForwarded(
-            xDefault: ForwardedTransformActions.Remove,
-            xFor: ForwardedTransformActions.Remove,
-            xHost: ForwardedTransformActions.Set,
-            xProto: ForwardedTransformActions.Set,
-            xPrefix: ForwardedTransformActions.Remove)
-          .WithTransformUseOriginalHostHeader(useOriginal: false);
-      }
-
-      routes.Add(route);
+      routes.Add(CreateRouteConfig(serviceName, hostName, forwardPublicOrigin));
     }
 
     inMemoryConfigProvider.Update(routes, clusters);
