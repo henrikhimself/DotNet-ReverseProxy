@@ -50,11 +50,13 @@ reverseProxy.WithHttpsEndpoint(port: 8443);
 
 // Add each website with a nice host name. Since we apply HTTPS using the reverse proxy by configuring the endpoint above,
 // we can use the HTTP endpoint of each proxied website.
-reverseProxy.WithReverseProxyReference(websiteOne.GetEndpoint("http"), "one.eshop.local", forwardPublicOrigin: true);
-reverseProxy.WithReverseProxyReference(websiteTwo.GetEndpoint("http"), "two.eshop.local", forwardPublicOrigin: true);
+reverseProxy
+  .WithReverseProxyReference(websiteOne.GetEndpoint("http"), "one.eshop.local", forwardPublicOrigin: true)
+  .WithReverseProxyReference(websiteTwo.GetEndpoint("http"), "two.eshop.local", forwardPublicOrigin: true);
 
 // Wait for both websites to be healthy before starting the reverse proxy.
-reverseProxy.WaitFor(websiteOne);
-reverseProxy.WaitFor(websiteTwo);
+reverseProxy
+  .WaitFor(websiteOne)
+  .WaitFor(websiteTwo);
 
 await builder.Build().RunAsync();

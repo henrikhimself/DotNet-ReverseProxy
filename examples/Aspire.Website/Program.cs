@@ -28,6 +28,7 @@ app.UseForwardedHeaders(new ForwardedHeadersOptions
 app.MapDefaultEndpoints();
 
 app.MapGet("/target", (IConfiguration configuration) => configuration["EXAMPLE_TARGET_NAME"] ?? "unknown");
+
 app.MapGet("/headers", (HttpContext context) => Results.Json(new
 {
   Host = context.Request.Host.Value,
