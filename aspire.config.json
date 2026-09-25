@@ -1,0 +1,6 @@
+{
+  "appHost": {
+    "language": "csharp",
+    "path": "examples/Aspire.AppHost/Examples.Aspire.AppHost.csproj"
+  }
+}
